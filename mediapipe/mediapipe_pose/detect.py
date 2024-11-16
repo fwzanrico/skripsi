@@ -11,7 +11,7 @@ class FaceMeshDetector:
         self.drawing_spec = self.mp_drawing.DrawingSpec(color=(128,0,128), thickness=2, circle_radius=1)
         
         # Load the pre-trained model
-        with open('./lm_pose.p', 'rb') as model_file:
+        with open('./lm_pose_data_kurasi.p', 'rb') as model_file:
             rf_classifier = pickle.load(model_file)
             self.clf = rf_classifier['model']
             
