@@ -9,7 +9,7 @@ import os
 import uuid
 
 class FaceMeshDetector:
-    def __init__(self):
+    def __init__(self,session_id):
         # Existing initialization code
         self.mp_face_mesh = mp.solutions.face_mesh
         self.mp_drawing = mp.solutions.drawing_utils
@@ -28,12 +28,12 @@ class FaceMeshDetector:
         )
         
         # Initialize session-specific folders and logging
-        self.initialize_session()
+        self.initialize_session(session_id)
     
-    def initialize_session(self):
+    def initialize_session(self, session_id):
         """Initialize session-specific folders and logging files."""
         # Create a unique session ID
-        self.session_id = datetime.now().strftime('%Y%m%d_%H%M%S') + '_' + str(uuid.uuid4())[:8]
+        self.session_id = session_id
         
         # Create session folder structure
         self.session_folder = os.path.join('sessions', self.session_id)
@@ -148,6 +148,8 @@ class FaceMeshDetector:
         ])
         distortion_matrix = np.zeros((4, 1), dtype=np.float64)
         
+
+
         # Solve PnP
         success, rotation_vec, translation_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, distortion_matrix)
         rmat, _ = cv2.Rodrigues(rotation_vec)
@@ -201,9 +203,9 @@ class FaceMeshDetector:
     # Rest of the FaceMeshDetector class remains the same...
     # (keeping all existing methods unchanged)
 
-
 def main():
-    detector = FaceMeshDetector()
+    session_name = input("session name format subject_activity")
+    detector = FaceMeshDetector(session_name)
     cap = cv2.VideoCapture(0)
     
     print(f"Session ID: {detector.session_id}")
@@ -216,10 +218,6 @@ def main():
             continue
 
         image, bbox, prediction, comp_time = detector.process_frame(frame)
-        
-        # Add computation time display to the frame
-        cv2.putText(image, f"Time: {comp_time:.3f}s", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         
         cv2.imshow('Face Mesh Detection', image)
         if cv2.waitKey(2) & 0xFF == 27:
